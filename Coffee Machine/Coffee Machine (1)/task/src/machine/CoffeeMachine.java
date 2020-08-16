@@ -1,5 +1,6 @@
 package machine;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class CoffeeMachine {
@@ -9,33 +10,26 @@ public class CoffeeMachine {
     private int cups;
     private int money;
 
+    private MachineState currentState;
+    private final List<MachineState> intermediateStates = List.of(
+            MachineState.FILLING_WATER,
+            MachineState.FILLING_MILK,
+            MachineState.FILLING_BEANS,
+            MachineState.FILLING_CUPS,
+            MachineState.SELECT_COFFEE
+    );
+
     private CoffeeMachine() {
         this.water = 400;
         this.milk = 540;
         this.beans = 120;
         this.cups = 9;
         this.money = 550;
+        this.currentState = MachineState.READY;
     }
 
-    public void reportStatus() {
-        System.out.println("The coffee machine has:\n" +
-                water + " of water\n" +
-                milk + " of milk\n" +
-                beans + " of coffee beans\n" +
-                cups + " of disposable cups\n" +
-                money + " of money");
-    }
-
-    private void makeEspresso() {
-        makeCoffee(250, 0,16, 4);
-    }
-
-    private void makeLatte() {
-        makeCoffee(350, 75,20, 7);
-    }
-
-    private void makeCappuccino() {
-        makeCoffee(200, 100,12, 6);
+    private void insufficientItem(String item) {
+        System.out.println("Sorry, not enough " + item + "!");
     }
 
     private void makeCoffee(int water, int milk, int beans, int cost) {
@@ -57,101 +51,169 @@ public class CoffeeMachine {
         }
     }
 
-    private void insufficientItem(String type) {
-        System.out.println("Sorry, not enough " + type + "!");
+    private void makeEspresso() {
+        makeCoffee(250, 0,16, 4);
     }
 
-    public void buy(Scanner scan) {
-        System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: ");
-        String item = scan.next();
+    private void makeLatte() {
+        makeCoffee(350, 75,20, 7);
+    }
 
-        switch (item) {
-            case "1":
+    private void makeCappuccino() {
+        makeCoffee(200, 100,12, 6);
+    }
+
+    public void buy(String input) {
+        if (currentState == MachineState.TRANSACTION_STARTED) {
+            System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: ");
+            currentState = currentState.nextState();
+            return;
+        }
+
+        BuyOptions option = BuyOptions.fromString(input);
+
+        switch (option) {
+            case ESPRESSO:
                 makeEspresso();
                 break;
-            case "2":
+            case LATTE:
                 makeLatte();
                 break;
-            case "3":
+            case CAPPUCCINO:
                 makeCappuccino();
                 break;
-            case "back":
+            case BACK:
                 System.out.println();
-                mainMenu(scan);
                 break;
             default:
                 System.out.println("Unknown Coffee!");
                 break;
         }
+
+        currentState = currentState.nextState();
     }
 
-    public void fill(Scanner scan) {
-        System.out.println("Write how many ml of water do you want to add: ");
-        int water = scan.nextInt();
+    public void fill(int value) {
+        switch (currentState) {
+            case REFILL_INITIATED:
+                System.out.println("Write how many ml of water do you want to add: ");
+                break;
+            case FILLING_WATER:
+                this.water += value;
+                System.out.println("Write how many ml of milk do you want to add: ");
+                break;
+            case FILLING_MILK:
+                this.milk += value;
+                System.out.println("Write how many grams of coffee beans do you want to add: ");
+                break;
+            case FILLING_BEANS:
+                this.beans += value;
+                System.out.println("Write how many disposable cups of coffee do you want to add: ");
+                break;
+            case FILLING_CUPS:
+                this.cups += value;
+                break;
+            default:
+                System.out.println("Invalid Fill State");
+                break;
+        }
 
-        System.out.println("Write how many ml of milk do you want to add: ");
-        int milk = scan.nextInt();
-
-        System.out.println("Write how many grams of coffee beans do you want to add: ");
-        int beans = scan.nextInt();
-
-        System.out.println("Write how many disposable cups of coffee do you want to add: ");
-        int cups = scan.nextInt();
-
-        this.refuel(water, milk, beans, cups);
+        currentState = currentState.nextState();
     }
 
-    private void refuel(int water, int milk, int beans, int cups) {
-        this.water += water;
-        this.milk += milk;
-        this.beans += beans;
-        this.cups += cups;
+    public void reportStatus() {
+        System.out.println("The coffee machine has:\n" +
+                water + " of water\n" +
+                milk + " of milk\n" +
+                beans + " of coffee beans\n" +
+                cups + " of disposable cups\n" +
+                money + " of money");
+        currentState = currentState.nextState();
     }
 
     public void take() {
         System.out.println("I gave you $" + this.money);
         this.money = 0;
+
+        currentState = currentState.nextState();
     }
 
     public void shutdown() {
+        currentState = MachineState.POWERED_DOWN;
         System.exit(0);
     }
 
-    public void mainMenu(Scanner scan) {
-        System.out.println("Write action (buy, fill, take, remaining, exit): ");
-        String action = scan.next();
+    public void action(String input) {
+        Action action = Action.fromString(input);
 
         System.out.println();
         switch (action) {
-            case "buy":
-                this.buy(scan);
+            case BUY:
+                currentState = MachineState.TRANSACTION_STARTED;
+                this.buy(input);
                 break;
-            case "fill":
-                this.fill(scan);
+            case FILL:
+                currentState = MachineState.REFILL_INITIATED;
+                this.fill(-1);
                 break;
-            case "take":
+            case TAKE:
+                currentState = MachineState.WITHDRAWING_MONEY;
                 this.take();
                 break;
-            case "remaining":
+            case REMAINING:
+                currentState = MachineState.REPORTING_STATUS;
                 this.reportStatus();
                 break;
-            case "exit":
+            case EXIT:
                 this.shutdown();
                 break;
             default:
                 System.out.println("Invalid action!");
                 break;
         }
-        System.out.println();
+    }
+
+    public void inputInterrupt(String input) {
+        switch (currentState) {
+            case READY:
+                this.action(input);
+                break;
+            case TRANSACTION_STARTED:
+            case REFILL_INITIATED:  // these states won't be reached anyway
+                break;
+            case REPORTING_STATUS:
+            case WITHDRAWING_MONEY: // these states won't be reached anyway
+                break;
+            case SELECT_COFFEE:
+                this.buy(input);
+                break;
+            case FILLING_WATER:
+            case FILLING_MILK:
+            case FILLING_BEANS:
+            case FILLING_CUPS:
+                this.fill(Integer.parseInt(input));
+                break;
+            case POWERED_DOWN:
+                break;
+            default:
+                System.out.println("Invalid State!");
+                break;
+        }
+
+        if (!intermediateStates.contains(currentState))
+            System.out.println("\nWrite action (buy, fill, take, remaining, exit): ");    // shouldn't show up for in-progress states
     }
 
     public static void main(String[] args) {
         CoffeeMachine cm = new CoffeeMachine();
         Scanner scan = new Scanner(System.in);
+        System.out.println("Write action (buy, fill, take, remaining, exit): ");
 
         // while loop here emulates an event loop
         while (true) {
-            cm.mainMenu(scan);
+            if (scan.hasNextLine()) {
+                cm.inputInterrupt(scan.nextLine());
+            }
         }
     }
 }
