@@ -6,16 +6,22 @@ hyperskill_project:
 stages:
 - id: 175
   step: 5329
+  is_completed: true
 - id: 176
   step: 5330
+  is_completed: true
 - id: 177
   step: 5331
+  is_completed: true
 - id: 178
   step: 5332
+  is_completed: true
 - id: 179
   step: 5333
+  is_completed: true
 - id: 180
   step: 5334
+  is_completed: true
 topics:
   0:
   - title: Introduction to Java
@@ -106,6 +112,8 @@ topics:
     theory_id: 3618
   - title: Constructor
     theory_id: 3535
+  - title: Objects
+    theory_id: 4727
   - title: Instance methods
     theory_id: 3495
   - title: Static members
