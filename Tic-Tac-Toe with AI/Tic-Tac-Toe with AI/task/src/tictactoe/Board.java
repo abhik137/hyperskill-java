@@ -1,29 +1,33 @@
 package tictactoe;
 
+import java.util.stream.IntStream;
+
 public class Board {
-    char[][] matrix = new char[3][3];
-    Player nextTurn = null;
-    BoardState gameStatus = BoardState.GAME_IN_PROGRESS;
-    int cellsFilled = 0;
-    int noOfX = 0;
-    int noOfO = 0;
+    private char[][] grid = new char[3][3]; // x/i => row, y/j => column
+    private int noOfX = 0;
+    private int noOfO = 0;
+    private int cellsFilled = 0;
+    private Player nextTurn = null;
+    private BoardState gameStatus = BoardState.GAME_IN_PROGRESS;
+
+    private final int MAX_CELLS = 9;
 
     public Board(String input) {
         int idx = 0;
         for (int i = 2; i >= 0; i--) {
             for (int j = 0; j < 3; j++) {
                 if (input.charAt(idx) == 'X'){
-                    matrix[i][j] = input.charAt(idx);
+                    grid[i][j] = input.charAt(idx);
                     cellsFilled++;
                     noOfX++;
                 }
                 else if (input.charAt(idx) == 'O'){
-                    matrix[i][j] = input.charAt(idx);
+                    grid[i][j] = input.charAt(idx);
                     cellsFilled++;
                     noOfO++;
                 }
                 else {  // (input.charAt(idx) == '_')
-                    matrix[i][j] = ' ';
+                    grid[i][j] = ' ';
                 }
                 idx++;
             }
@@ -31,7 +35,7 @@ public class Board {
     }
 
     public void nextMove(int x, int y) {
-        matrix[x - 1][y - 1] = whoseTurnIsIt();
+        grid[x - 1][y - 1] = whoseTurnIsIt();
         cellsFilled++;
         updateGameStatus(x,y,nextTurn);
         nextTurn = nextPlayer();
@@ -54,42 +58,62 @@ public class Board {
         return this.nextTurn.toString().charAt(0);
     }
 
-    private void updateGameStatus(int x, int y, Player current) {
-        char currentChar = matrix[x - 1][y - 1];
+    private void updateGameStatus(int x, int y, Player currentPlayer) {
+        boolean isGameWon = checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal();
 
-        boolean isGameWon = (
-            isRowComplete(x, currentChar) ||
-            isColumnComplete(y, currentChar) ||
-            isLeftDiagonalComplete(currentChar) ||
-            isRightDiagonalComplete(currentChar)
-        );
-        if (isGameWon && current == Player.X)
+        if (isGameWon && currentPlayer == Player.X)
             this.gameStatus = BoardState.X_WINS;
-        else if (isGameWon && current == Player.O)
+        else if (isGameWon && currentPlayer == Player.O)
             this.gameStatus = BoardState.O_WINS;
-        else if (cellsFilled == 9)
+        else if (cellsFilled == MAX_CELLS)
             this.gameStatus = BoardState.DRAW;
         else
             this.gameStatus = BoardState.GAME_IN_PROGRESS;
     }
 
-    public void printBoard() {
-        System.out.println("---------");
-        for (int i = 2; i >= 0; i--) {
-            System.out.print("| ");
-            for (int j = 0; j < 3; j++) {
-                System.out.print(matrix[i][j]);
-                System.out.print(" ");
-            }
-            System.out.print("|\n");
-        }
-        System.out.println("---------");
+
+    private boolean checkRow(int x) {
+        return IntStream.of(1, 2).allMatch(i -> grid[x][0] == grid[x][i]);  // i.e. grid[x][0] == grid[x][1] == grid[x][2]
     }
 
+    private boolean checkColumn(int y) {
+        return IntStream.of(1, 2).allMatch(i -> grid[0][y] == grid[i][y]);  // i.e. grid[0][y] == grid[1][y] == grid[2][y]
+    }
+
+    private boolean checkDiagonal() {
+        return IntStream.of(1,2).allMatch(i -> grid[0][0] == grid[i][i]) ||     // grid[0,0] == grid[1,1] == grid[2,2]
+                IntStream.of(1,2).allMatch(i -> grid[0][2] == grid[i][2 - i]);  // grid[0,2] == grid[1,1] == grid[2,0]
+    }
+
+    public boolean isCellEmpty(int x, int y) {
+        return grid[x - 1][y - 1] == ' ';
+    }
+
+    public void printBoard() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("---------\n");
+        for (int i = 2; i >= 0; i--) {
+            sb.append("| ");
+            for (int j = 0; j < 3; j++) {
+                sb.append(grid[i][j]);
+                sb.append(" ");
+            }
+            sb.append("|\n");
+        }
+        sb.append("---------");
+
+        System.out.println(sb.toString());
+    }
+
+    public BoardState getGameStatus() {
+        return this.gameStatus;
+    }
+
+    @Deprecated
     private boolean isRightDiagonalComplete(char currentChar) {
         boolean isGameWon = true;
         for (int i = 0, j = 2; i < 3 & j > 0; i++, j--) {
-            if (matrix[i][j] != currentChar) {
+            if (grid[i][j] != currentChar) {
                 isGameWon = false;
                 break;
             }
@@ -97,10 +121,11 @@ public class Board {
         return isGameWon;
     }
 
+    @Deprecated
     private boolean isLeftDiagonalComplete(char currentChar) {
         boolean isGameWon = true;
         for (int i = 0, j = 0; i < 3 & j < 3; i++, j++) {
-            if (matrix[i][j] != currentChar) {
+            if (grid[i][j] != currentChar) {
                 isGameWon = false;
                 break;
             }
@@ -108,11 +133,12 @@ public class Board {
         return isGameWon;
     }
 
+    @Deprecated
     private boolean isColumnComplete(int y, char currentChar) {
         boolean isGameWon = true;
         int column = y - 1;
         for (int i = 0; i < 3; i++) {
-            if (matrix[i][column] != currentChar) {
+            if (grid[i][column] != currentChar) {
                 isGameWon = false;
                 break;
             }
@@ -120,19 +146,16 @@ public class Board {
         return isGameWon;
     }
 
+    @Deprecated
     private boolean isRowComplete(int x, char currentChar) {
         boolean isGameWon = true;
         int row = x - 1;
         for (int i = 0; i < 3; i++) {
-            if (matrix[x - 1][i] != currentChar) {
+            if (grid[x - 1][i] != currentChar) {
                 isGameWon = false;
                 break;
             }
         }
         return isGameWon;
-    }
-
-    public boolean isCellEmpty(int x, int y) {
-        return matrix[x - 1][y - 1] == ' ';
     }
 }
