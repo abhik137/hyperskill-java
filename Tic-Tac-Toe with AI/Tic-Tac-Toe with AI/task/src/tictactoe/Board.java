@@ -1,5 +1,7 @@
 package tictactoe;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 public class Board {
@@ -9,8 +11,18 @@ public class Board {
     private int cellsFilled = 0;
     private Player nextTurn = null;
     private BoardState gameStatus = BoardState.GAME_IN_PROGRESS;
+    private Random rng = ThreadLocalRandom.current();
 
     private final int MAX_CELLS = 9;
+    private final int GRID_SIZE = grid.length;
+
+    public Board() {
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                grid[i][j] = ' ';
+            }
+        }
+    }
 
     public Board(String input) {
         int idx = 0;
@@ -30,6 +42,22 @@ public class Board {
                     grid[i][j] = ' ';
                 }
                 idx++;
+            }
+        }
+    }
+
+    public void nextMoveAI() {
+        // generate a random no. b/w [0,9) corresponding to a cell that is not occupied
+        while (true) {
+            int rnd = rng.nextInt(MAX_CELLS);
+            // map rnd to (x,y)
+            int x = rnd / 3;
+            int y = rnd % 3;
+
+            // need to add 1 as other methods expect 1-indexed coordinates in input
+            if (isEmptyCell(x + 1 , y + 1)) {
+                nextMove(x + 1 , y + 1);
+                break;
             }
         }
     }
@@ -59,7 +87,7 @@ public class Board {
     }
 
     private void updateGameStatus(int x, int y, Player currentPlayer) {
-        boolean isGameWon = checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal();
+        boolean isGameWon = checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal(currentPlayer.toString().charAt(0));
 
         if (isGameWon && currentPlayer == Player.X)
             this.gameStatus = BoardState.X_WINS;
@@ -80,12 +108,12 @@ public class Board {
         return IntStream.of(1, 2).allMatch(i -> grid[0][y] == grid[i][y]);  // i.e. grid[0][y] == grid[1][y] == grid[2][y]
     }
 
-    private boolean checkDiagonal() {
-        return IntStream.of(1,2).allMatch(i -> grid[0][0] == grid[i][i]) ||     // grid[0,0] == grid[1,1] == grid[2,2]
-                IntStream.of(1,2).allMatch(i -> grid[0][2] == grid[i][2 - i]);  // grid[0,2] == grid[1,1] == grid[2,0]
+    private boolean checkDiagonal(char c) {
+        return (grid[0][0] == c && IntStream.of(1,2).allMatch(i -> grid[0][0] == grid[i][i])) ||    // grid[0,0] == grid[1,1] == grid[2,2]
+               (grid[0][2] == c && IntStream.of(1,2).allMatch(i -> grid[0][2] == grid[i][2 - i]));  // grid[0,2] == grid[1,1] == grid[2,0]
     }
 
-    public boolean isCellEmpty(int x, int y) {
+    public boolean isEmptyCell(int x, int y) {
         return grid[x - 1][y - 1] == ' ';
     }
 

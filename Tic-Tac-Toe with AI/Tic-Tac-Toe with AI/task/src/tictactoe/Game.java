@@ -7,18 +7,17 @@ public class Game {
     private final Scanner sc = new Scanner(System.in);
 
     public void startGame() {
-        System.out.print("Enter cells: ");
-        String input = sc.nextLine();
+        // System.out.print("Enter cells: ");
+        // String input = sc.nextLine();
 
-        this.board = new Board(input);
+        this.board = new Board();
         board.printBoard();
 
-        boolean isValidCoordinate = false;
-        while (!isValidCoordinate) {
+        while (board.getGameStatus() == BoardState.GAME_IN_PROGRESS) {
             System.out.print("Enter the coordinates: ");
             String coordinates = sc.nextLine();
 
-            if (isValidCoordinate = isValidCoordinate(coordinates)) {   // validate co-ordinates
+            if (isValidCoordinate(coordinates)) {   // validate co-ordinates
                 String[] parts = coordinates.split(" ");
                 /*
                  * y is column, x is row, since the co-ordinate map is like this:
@@ -31,10 +30,17 @@ public class Game {
                 int x = Integer.parseInt(parts[1]);   // +1 as we are assuming 1-indexing for input to nextMove()
                 board.nextMove(x, y);
                 board.printBoard();
-                BoardState currentGameStatus = board.getGameStatus();
-                System.out.println(currentGameStatus.getStringStatus());
+
+                if (board.getGameStatus() != BoardState.GAME_IN_PROGRESS)
+                    break;
+
+                System.out.println("Making move level \"easy\"");
+                board.nextMoveAI();
+                board.printBoard();
             }
         }
+
+        System.out.println(board.getGameStatus().getStringStatus());
     }
 
     private boolean isValidCoordinate(String coordinates) {
@@ -47,7 +53,7 @@ public class Game {
                 System.out.println("Coordinates should be from 1 to 3!");
                 return false;
             }
-            if (!board.isCellEmpty(x, y)) {
+            if (!board.isEmptyCell(x, y)) {
                 System.out.println("This cell is occupied! Choose another one!");
                 return false;
             }
