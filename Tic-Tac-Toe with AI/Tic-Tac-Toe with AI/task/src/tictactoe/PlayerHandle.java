@@ -1,5 +1,5 @@
 package tictactoe;
 
-public enum Player {
+public enum PlayerHandle {
     X,O;
 }

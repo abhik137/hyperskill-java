@@ -1,7 +1,5 @@
 package tictactoe;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 public class Board {
@@ -9,9 +7,8 @@ public class Board {
     private int noOfX = 0;
     private int noOfO = 0;
     private int cellsFilled = 0;
-    private Player nextTurn = null;
+    private PlayerHandle nextTurn = null;
     private BoardState gameStatus = BoardState.GAME_IN_PROGRESS;
-    private Random rng = ThreadLocalRandom.current();
 
     private final int MAX_CELLS = 9;
     private final int GRID_SIZE = grid.length;
@@ -33,7 +30,7 @@ public class Board {
                     cellsFilled++;
                     noOfX++;
                 }
-                else if (input.charAt(idx) == 'O'){
+                else if (input.charAt(idx) == 'O') {
                     grid[i][j] = input.charAt(idx);
                     cellsFilled++;
                     noOfO++;
@@ -46,22 +43,6 @@ public class Board {
         }
     }
 
-    public void nextMoveAI() {
-        // generate a random no. b/w [0,9) corresponding to a cell that is not occupied
-        while (true) {
-            int rnd = rng.nextInt(MAX_CELLS);
-            // map rnd to (x,y)
-            int x = rnd / 3;
-            int y = rnd % 3;
-
-            // need to add 1 as other methods expect 1-indexed coordinates in input
-            if (isEmptyCell(x + 1 , y + 1)) {
-                nextMove(x + 1 , y + 1);
-                break;
-            }
-        }
-    }
-
     public void nextMove(int x, int y) {
         grid[x - 1][y - 1] = whoseTurnIsIt();
         cellsFilled++;
@@ -69,29 +50,29 @@ public class Board {
         nextTurn = nextPlayer();
     }
 
-    private Player nextPlayer() {
-        if (this.nextTurn == Player.X)
-            return Player.O;
+    private PlayerHandle nextPlayer() {
+        if (this.nextTurn == PlayerHandle.X)
+            return PlayerHandle.O;
         else
-            return Player.X;
+            return PlayerHandle.X;
     }
 
     private char whoseTurnIsIt() {
         if (nextTurn == null) {
             if (noOfX == noOfO)
-                nextTurn = Player.X;
+                nextTurn = PlayerHandle.X;
             else    // noOfX > noOfO
-                nextTurn = Player.O;
+                nextTurn = PlayerHandle.O;
         }
         return this.nextTurn.toString().charAt(0);
     }
 
-    private void updateGameStatus(int x, int y, Player currentPlayer) {
+    private void updateGameStatus(int x, int y, PlayerHandle currentPlayer) {
         boolean isGameWon = checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal(currentPlayer.toString().charAt(0));
 
-        if (isGameWon && currentPlayer == Player.X)
+        if (isGameWon && currentPlayer == PlayerHandle.X)
             this.gameStatus = BoardState.X_WINS;
-        else if (isGameWon && currentPlayer == Player.O)
+        else if (isGameWon && currentPlayer == PlayerHandle.O)
             this.gameStatus = BoardState.O_WINS;
         else if (cellsFilled == MAX_CELLS)
             this.gameStatus = BoardState.DRAW;
@@ -135,55 +116,5 @@ public class Board {
 
     public BoardState getGameStatus() {
         return this.gameStatus;
-    }
-
-    @Deprecated
-    private boolean isRightDiagonalComplete(char currentChar) {
-        boolean isGameWon = true;
-        for (int i = 0, j = 2; i < 3 & j > 0; i++, j--) {
-            if (grid[i][j] != currentChar) {
-                isGameWon = false;
-                break;
-            }
-        }
-        return isGameWon;
-    }
-
-    @Deprecated
-    private boolean isLeftDiagonalComplete(char currentChar) {
-        boolean isGameWon = true;
-        for (int i = 0, j = 0; i < 3 & j < 3; i++, j++) {
-            if (grid[i][j] != currentChar) {
-                isGameWon = false;
-                break;
-            }
-        }
-        return isGameWon;
-    }
-
-    @Deprecated
-    private boolean isColumnComplete(int y, char currentChar) {
-        boolean isGameWon = true;
-        int column = y - 1;
-        for (int i = 0; i < 3; i++) {
-            if (grid[i][column] != currentChar) {
-                isGameWon = false;
-                break;
-            }
-        }
-        return isGameWon;
-    }
-
-    @Deprecated
-    private boolean isRowComplete(int x, char currentChar) {
-        boolean isGameWon = true;
-        int row = x - 1;
-        for (int i = 0; i < 3; i++) {
-            if (grid[x - 1][i] != currentChar) {
-                isGameWon = false;
-                break;
-            }
-        }
-        return isGameWon;
     }
 }
