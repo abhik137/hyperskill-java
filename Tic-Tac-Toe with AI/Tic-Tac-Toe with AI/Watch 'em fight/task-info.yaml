@@ -593,9 +593,6 @@ files:
 - name: src/tictactoe/GameLevel.java
   visible: true
   learner_created: true
-- name: src/tictactoe/ai/AI.java
-  visible: true
-  learner_created: true
 - name: src/tictactoe/player/Player.java
   visible: true
   learner_created: true
@@ -620,4 +617,4 @@ feedback:
   message: Congratulations! Continue on <a href="https://hyperskill.org/projects/81/stages/449/implement">JetBrains
     Academy</a>
   time: Thu, 10 Sep 2020 13:58:54 UTC
-record: -1
+record: 3

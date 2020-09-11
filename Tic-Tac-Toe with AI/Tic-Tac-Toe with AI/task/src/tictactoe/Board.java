@@ -3,7 +3,7 @@ package tictactoe;
 import java.util.stream.IntStream;
 
 public class Board {
-    private char[][] grid = new char[3][3]; // x/i => row, y/j => column
+    private final char[][] grid = new char[3][3]; // x/i => row, y/j => column
     private int noOfX = 0;
     private int noOfO = 0;
     private int cellsFilled = 0;
@@ -29,13 +29,11 @@ public class Board {
                     grid[i][j] = input.charAt(idx);
                     cellsFilled++;
                     noOfX++;
-                }
-                else if (input.charAt(idx) == 'O') {
+                } else if (input.charAt(idx) == 'O') {
                     grid[i][j] = input.charAt(idx);
                     cellsFilled++;
                     noOfO++;
-                }
-                else {  // (input.charAt(idx) == '_')
+                } else {  // (input.charAt(idx) == '_')
                     grid[i][j] = ' ';
                 }
                 idx++;
@@ -46,7 +44,7 @@ public class Board {
     public void nextMove(int x, int y) {
         grid[x - 1][y - 1] = whoseTurnIsIt();
         cellsFilled++;
-        updateGameStatus(x,y,nextTurn);
+        updateGameStatus(x, y, nextTurn);
         nextTurn = nextPlayer();
     }
 
@@ -68,7 +66,7 @@ public class Board {
     }
 
     private void updateGameStatus(int x, int y, PlayerHandle currentPlayer) {
-        boolean isGameWon = checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal(currentPlayer.toString().charAt(0));
+        boolean isGameWon = isGameWon(x, y, currentPlayer.toString().charAt(0));
 
         if (isGameWon && currentPlayer == PlayerHandle.X)
             this.gameStatus = BoardState.X_WINS;
@@ -79,7 +77,6 @@ public class Board {
         else
             this.gameStatus = BoardState.GAME_IN_PROGRESS;
     }
-
 
     private boolean checkRow(int x) {
         return IntStream.of(1, 2).allMatch(i -> grid[x][0] == grid[x][i]);  // i.e. grid[x][0] == grid[x][1] == grid[x][2]
@@ -94,8 +91,16 @@ public class Board {
                (grid[0][2] == c && IntStream.of(1,2).allMatch(i -> grid[0][2] == grid[i][2 - i]));  // grid[0,2] == grid[1,1] == grid[2,0]
     }
 
+    public boolean isGameWon(int x, int y, char player) {
+        return checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal(player);
+    }
+
     public boolean isEmptyCell(int x, int y) {
         return grid[x - 1][y - 1] == ' ';
+    }
+
+    public void setCellEmpty(int x, int y) {
+        grid[x - 1][y - 1] = ' ';
     }
 
     public void printBoard() {
@@ -116,5 +121,9 @@ public class Board {
 
     public BoardState getGameStatus() {
         return this.gameStatus;
+    }
+
+    public char[][] getGrid() {
+        return this.grid;
     }
 }

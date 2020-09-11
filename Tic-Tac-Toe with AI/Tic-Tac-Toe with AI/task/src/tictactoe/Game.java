@@ -36,8 +36,8 @@ public class Game {
             if (!isValidInput)
                 continue;
 
-            Player p1 = Player.getPlayerInstance(inpArr[1], board, sc);
-            Player p2 = Player.getPlayerInstance(inpArr[2], board, sc);
+            Player p1 = Player.getPlayerInstance(inpArr[1], board, 'X', sc);
+            Player p2 = Player.getPlayerInstance(inpArr[2], board, 'O', sc);
 
             while (board.getGameStatus() == BoardState.GAME_IN_PROGRESS) {
                 // player1 nad player2 move alternately till game finishes
@@ -53,7 +53,7 @@ public class Game {
     }
 
     private boolean isValidInput(String[] inpArr) {
-        List<String> validInputs = List.of("user", "easy");
+        List<String> validInputs = List.of("user", "easy", "medium", "hard");
         if (inpArr.length != 3) {
             System.out.println("Bad parameters!");
             return false;

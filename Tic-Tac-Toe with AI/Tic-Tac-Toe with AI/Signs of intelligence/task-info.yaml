@@ -300,6 +300,414 @@ files:
         }
     }
   learner_created: false
+- name: src/tictactoe/Board.java
+  visible: true
+  text: |
+    package tictactoe;
+
+    import java.util.stream.IntStream;
+
+    public class Board {
+        private char[][] grid = new char[3][3]; // x/i => row, y/j => column
+        private int noOfX = 0;
+        private int noOfO = 0;
+        private int cellsFilled = 0;
+        private PlayerHandle nextTurn = null;
+        private BoardState gameStatus = BoardState.GAME_IN_PROGRESS;
+
+        private final int MAX_CELLS = 9;
+        private final int GRID_SIZE = grid.length;
+
+        public Board() {
+            for (int i = 0; i < GRID_SIZE; i++) {
+                for (int j = 0; j < GRID_SIZE; j++) {
+                    grid[i][j] = ' ';
+                }
+            }
+        }
+
+        public Board(String input) {
+            int idx = 0;
+            for (int i = 2; i >= 0; i--) {
+                for (int j = 0; j < 3; j++) {
+                    if (input.charAt(idx) == 'X'){
+                        grid[i][j] = input.charAt(idx);
+                        cellsFilled++;
+                        noOfX++;
+                    }
+                    else if (input.charAt(idx) == 'O') {
+                        grid[i][j] = input.charAt(idx);
+                        cellsFilled++;
+                        noOfO++;
+                    }
+                    else {  // (input.charAt(idx) == '_')
+                        grid[i][j] = ' ';
+                    }
+                    idx++;
+                }
+            }
+        }
+
+        public void nextMove(int x, int y) {
+            grid[x - 1][y - 1] = whoseTurnIsIt();
+            cellsFilled++;
+            updateGameStatus(x,y,nextTurn);
+            nextTurn = nextPlayer();
+        }
+
+        private PlayerHandle nextPlayer() {
+            if (this.nextTurn == PlayerHandle.X)
+                return PlayerHandle.O;
+            else
+                return PlayerHandle.X;
+        }
+
+        private char whoseTurnIsIt() {
+            if (nextTurn == null) {
+                if (noOfX == noOfO)
+                    nextTurn = PlayerHandle.X;
+                else    // noOfX > noOfO
+                    nextTurn = PlayerHandle.O;
+            }
+            return this.nextTurn.toString().charAt(0);
+        }
+
+        private void updateGameStatus(int x, int y, PlayerHandle currentPlayer) {
+            boolean isGameWon = checkRow(x - 1) || checkColumn(y - 1) || checkDiagonal(currentPlayer.toString().charAt(0));
+
+            if (isGameWon && currentPlayer == PlayerHandle.X)
+                this.gameStatus = BoardState.X_WINS;
+            else if (isGameWon && currentPlayer == PlayerHandle.O)
+                this.gameStatus = BoardState.O_WINS;
+            else if (cellsFilled == MAX_CELLS)
+                this.gameStatus = BoardState.DRAW;
+            else
+                this.gameStatus = BoardState.GAME_IN_PROGRESS;
+        }
+
+
+        private boolean checkRow(int x) {
+            return IntStream.of(1, 2).allMatch(i -> grid[x][0] == grid[x][i]);  // i.e. grid[x][0] == grid[x][1] == grid[x][2]
+        }
+
+        private boolean checkColumn(int y) {
+            return IntStream.of(1, 2).allMatch(i -> grid[0][y] == grid[i][y]);  // i.e. grid[0][y] == grid[1][y] == grid[2][y]
+        }
+
+        private boolean checkDiagonal(char c) {
+            return (grid[0][0] == c && IntStream.of(1,2).allMatch(i -> grid[0][0] == grid[i][i])) ||    // grid[0,0] == grid[1,1] == grid[2,2]
+                   (grid[0][2] == c && IntStream.of(1,2).allMatch(i -> grid[0][2] == grid[i][2 - i]));  // grid[0,2] == grid[1,1] == grid[2,0]
+        }
+
+        public boolean isEmptyCell(int x, int y) {
+            return grid[x - 1][y - 1] == ' ';
+        }
+
+        public void printBoard() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("---------\n");
+            for (int i = 2; i >= 0; i--) {
+                sb.append("| ");
+                for (int j = 0; j < 3; j++) {
+                    sb.append(grid[i][j]);
+                    sb.append(" ");
+                }
+                sb.append("|\n");
+            }
+            sb.append("---------");
+
+            System.out.println(sb.toString());
+        }
+
+        public BoardState getGameStatus() {
+            return this.gameStatus;
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/player/HumanPlayer.java
+  visible: true
+  text: |
+    package tictactoe.player;
+
+    import tictactoe.Board;
+    import tictactoe.BoardState;
+
+    import java.util.Scanner;
+
+    public class HumanPlayer implements Player {
+
+        private Board board;
+        private Scanner sc;
+
+        public HumanPlayer(Board board, Scanner sc) {
+            this.board = board;
+            this.sc = sc;
+        }
+
+        @Override
+        public void move() {
+            boolean isValidCoordinate = false;
+
+            while (!isValidCoordinate) {
+                System.out.print("Enter the coordinates: ");
+                String coordinates = sc.nextLine();
+
+                if (isValidCoordinate = isValidCoordinate(coordinates)) {   // validate co-ordinates
+                    String[] parts = coordinates.split(" ");
+                    /*
+                     * y is column, x is row, since the co-ordinate map is like this:
+                     * (1, 3) (2, 3) (3, 3)
+                     * (1, 2) (2, 2) (3, 2)
+                     * (1, 1) (2, 1) (3, 1)
+                     * the first co-ordinate represents the column
+                     */
+                    int y = Integer.parseInt(parts[0]);
+                    int x = Integer.parseInt(parts[1]);   // +1 as we are assuming 1-indexing for input to nextMove()
+                    board.nextMove(x, y);
+                    board.printBoard();
+                    if (board.getGameStatus() != BoardState.GAME_IN_PROGRESS) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        private boolean isValidCoordinate(String coordinates) {
+            String[] parts = coordinates.split(" ");
+            try {
+                int y = Integer.parseInt(parts[0]);
+                int x = Integer.parseInt(parts[1]);
+
+                if (x < 1 || x > 3 || y < 1 || y > 3) {
+                    System.out.println("Coordinates should be from 1 to 3!");
+                    return false;
+                }
+                if (!board.isEmptyCell(x, y)) {
+                    System.out.println("This cell is occupied! Choose another one!");
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("You should enter numbers!");
+                return false;
+            }
+            return true;
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/BoardState.java
+  visible: true
+  text: |-
+    package tictactoe;
+
+    public enum BoardState {
+        GAME_IN_PROGRESS("Game not finished"),
+        DRAW("Draw"),
+        X_WINS("X wins"),
+        O_WINS("O wins");
+
+        private final String stringStatus;
+
+        BoardState(String status) {
+            this.stringStatus = status;
+        }
+
+        public String getStringStatus() {
+            return this.stringStatus;
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/Game.java
+  visible: true
+  text: |
+    package tictactoe;
+
+    import tictactoe.player.Player;
+
+    import java.util.List;
+    import java.util.Scanner;
+
+    public class Game {
+        private Board board;
+        private final Scanner sc = new Scanner(System.in);
+
+        public void startGame() {
+            while (true) {
+                System.out.print("Input command: ");
+                String input = sc.nextLine();
+
+                // handle input
+                String[] inpArr = input.split(" ");
+                boolean isValidInput = isValidInput(inpArr);
+
+                String command = inpArr[0];
+
+                switch (command) {
+                    case "start":
+                        this.board = new Board();
+                        board.printBoard();
+                        break;
+                    case "exit":
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Bad parameters!");
+                        continue;
+                }
+
+                if (!isValidInput)
+                    continue;
+
+                Player p1 = Player.getPlayerInstance(inpArr[1], board, sc);
+                Player p2 = Player.getPlayerInstance(inpArr[2], board, sc);
+
+                while (board.getGameStatus() == BoardState.GAME_IN_PROGRESS) {
+                    // player1 nad player2 move alternately till game finishes
+                    p1.move();
+                    if (board.getGameStatus() != BoardState.GAME_IN_PROGRESS) {
+                        break;
+                    }
+                    p2.move();
+                }
+
+                System.out.println(board.getGameStatus().getStringStatus());
+            }
+        }
+
+        private boolean isValidInput(String[] inpArr) {
+            List<String> validInputs = List.of("user", "easy");
+            if (inpArr.length != 3) {
+                System.out.println("Bad parameters!");
+                return false;
+            }
+            for (int i = 1; i < 3; i++) {   // i = 1,2
+                if (!validInputs.contains(inpArr[i])) {
+                    System.out.println("Bad parameters!");
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/GameLevel.java
+  visible: true
+  text: |
+    package tictactoe;
+
+    import java.util.Optional;
+
+    public enum GameLevel {
+        EASY("easy"),
+        MEDIUM("medium"),
+        HARD("hard");
+
+        private String levelStr;
+
+        GameLevel(String levelStr) {
+            this.levelStr = levelStr;
+        }
+
+        public String getLevelStr() {
+            return levelStr;
+        }
+
+        public Optional<GameLevel> fromString(String text) {
+            for (GameLevel level: GameLevel.values()) {
+                if (text.equals(level.getLevelStr())) {
+                    return Optional.of(level);
+                }
+            }
+            return Optional.empty();
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/player/EasyAiPlayer.java
+  visible: true
+  text: |
+    package tictactoe.player;
+
+    import tictactoe.Board;
+
+    import java.util.Random;
+    import java.util.concurrent.ThreadLocalRandom;
+
+    public class EasyAiPlayer implements Player {
+
+        private Board board;
+        private Random rng = ThreadLocalRandom.current();
+        private int MAX_CELLS = 9;
+
+        public EasyAiPlayer(Board board) {
+            this.board = board;
+        }
+
+        @Override
+        public void move() {
+            System.out.println("Making move level \"easy\"");
+
+            while (true) {
+                // generate a random no. b/w [0,9) corresponding to a cell that is not occupied
+                int rnd = rng.nextInt(MAX_CELLS);
+
+                // map rnd to (x,y)
+                int x = rnd / 3;
+                int y = rnd % 3;
+
+                // need to add 1 as other methods expect 1-indexed coordinates in input
+                if (board.isEmptyCell(x + 1 , y + 1)) {
+                    board.nextMove(x + 1 , y + 1);
+                    break;
+                }
+            }
+
+            board.printBoard();
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/PlayerHandle.java
+  visible: true
+  text: |
+    package tictactoe;
+
+    public enum PlayerHandle {
+        X,O;
+    }
+  learner_created: true
+- name: src/tictactoe/player/Player.java
+  visible: true
+  text: |
+    package tictactoe.player;
+
+    import tictactoe.Board;
+
+    import java.util.Scanner;
+
+    public interface Player {
+        void move();
+
+        static Player getPlayerInstance(String input, Board board, Scanner sc) {
+            Player pl = null;
+            switch (input) {
+                case "user":
+                    pl = new HumanPlayer(board, sc);
+                    break;
+                case "easy":
+                    pl = new EasyAiPlayer(board);
+                    break;
+                default:
+                    break;
+            }
+            return pl;
+        }
+    }
+  learner_created: true
+- name: src/tictactoe/player/MediumAiPlayer.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/81/stages/450/implement
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/81/stages/450/implement">JetBrains
+    Academy</a>
+  time: Fri, 11 Sep 2020 17:43:59 UTC
 record: -1
