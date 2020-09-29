@@ -23,7 +23,7 @@ public class Game {
             switch (command) {
                 case "start":
                     this.board = new Board();
-                    board.printBoard();
+                    // board.printBoard();
                     break;
                 case "exit":
                     System.exit(0);

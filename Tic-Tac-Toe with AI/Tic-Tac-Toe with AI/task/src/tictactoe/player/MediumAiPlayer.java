@@ -9,10 +9,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MediumAiPlayer implements Player {
 
     private Board board;
-    private Random rng = ThreadLocalRandom.current();
-    private int MAX_CELLS = 9;
     private char player;
     private char opponent;
+    private Random rng = ThreadLocalRandom.current();
+    private int MAX_CELLS = 9;
 
     public MediumAiPlayer(Board board, char player) {
         this.board = board;

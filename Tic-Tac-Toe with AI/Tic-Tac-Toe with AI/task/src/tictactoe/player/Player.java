@@ -18,6 +18,9 @@ public interface Player {
                 break;
             case "medium":
                 pl = new MediumAiPlayer(board, playerAlias);
+                break;
+            case "hard":
+                pl = new MinimaxAiPlayer(board, playerAlias);
             default:
                 break;
         }
