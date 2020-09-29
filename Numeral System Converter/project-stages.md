@@ -36,7 +36,37 @@ Example 2:
 
 ### Description
 
+Implement a program that calculates **the last digit** of the given number converted to base 8.
+
+This stage is auto-graded. The grader will **input a number** in base 10, and then check that your program **output** matches the correct answer.
+
 ### Example
+
+Example 1
+
+Input:
+```text
+8
+```
+
+Output:
+
+```text
+0
+```
+
+Example 2
+
+Input:
+```text
+9
+```
+
+Output:
+
+```text
+1
+```
 
 ## Stage 3/6: For example
 
