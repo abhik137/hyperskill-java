@@ -1,6 +1,7 @@
-# Projects Completed
+# Projects Status
 
-| Project | Level |
-|---------|-------|
-|Coffee Machine|Easy|
-|Tic-Tac-Toe with AI|Medium|
+|Project                               |Level  |Status     |
+|--------------------------------------|-------|-----------|
+|Coffee Machine                        |Easy   |Complete   |
+|Tic-Tac-Toe with AI                   |Medium |Complete   |
+|Numeral System Converter              |Medium |In-Progress|
