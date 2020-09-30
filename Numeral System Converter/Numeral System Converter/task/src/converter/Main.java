@@ -5,22 +5,26 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int num = sc.nextInt();
-        int radix = sc.nextInt();
+        int srcRadix = sc.nextInt();
+        String num = sc.next();
+        int targetRadix = sc.nextInt();
+        int decimalNum = 0;
         String output = "";
 
-        switch (radix) {
-            case 2:
-                System.out.println("0b" + Long.toBinaryString(num));
-                break;
-            case 8:
-                System.out.println("0" + Long.toOctalString(num));
-                break;
-            case 16:
-                System.out.println("0x" + Long.toHexString(num));
-                break;
-            default:
-                break;
+        if (srcRadix == 1) {
+            decimalNum = num.length();
+        } else {
+            decimalNum = Integer.parseInt(num, srcRadix);
         }
+
+        if (targetRadix == 1) {
+            // for (int i = 0; i < decimalNum; i++) {
+            //     output += "1";
+            // }
+            output = "1".repeat(decimalNum);
+        } else {
+            output = Integer.toString(decimalNum, targetRadix);
+        }
+        System.out.println(output);
     }
 }
