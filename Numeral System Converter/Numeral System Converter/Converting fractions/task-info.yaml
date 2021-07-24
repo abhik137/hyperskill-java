@@ -15,7 +15,6 @@ files:
 - name: test/ConverterTest.java
   visible: false
   text: |
-    import converter.Main;
     import org.hyperskill.hstest.stage.StageTest;
     import org.hyperskill.hstest.testcase.CheckResult;
     import org.hyperskill.hstest.testcase.TestCase;
@@ -45,9 +44,10 @@ files:
 
     public class ConverterTest extends StageTest<Clue> {
 
-        public ConverterTest() {
-            super(Main.class);
+        static {
+            org.hyperskill.hstest.testing.Settings.allowOutOfInput = true;
         }
+
 
         static TestCase<Clue> testToAnswer(final String input, final String answer, final boolean provideAnswer) {
             return new TestCase<Clue>()

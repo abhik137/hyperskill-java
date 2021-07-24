@@ -3,6 +3,7 @@ hyperskill_project:
   ide_files: https://stepik.org/media/attachments/lesson/203894/additional_files.json
   is_template_based: false
   use_ide: true
+update_date: Sat, 24 Jul 2021 07:55:10 UTC
 stages:
 - id: 214
   step: 5310
@@ -24,8 +25,6 @@ stages:
   is_completed: false
 topics:
   0:
-  - title: Units of information
-    theory_id: 6865
   - title: Binary numbers
     theory_id: 5544
   - title: Converting from binary to decimal
@@ -45,6 +44,8 @@ topics:
     theory_id: 3518
   - title: Comments
     theory_id: 3520
+  - title: Coding style conventions
+    theory_id: 12411
   - title: Naming variables
     theory_id: 3513
   - title: Scanning the input
@@ -61,7 +62,7 @@ topics:
   - title: Hexadecimal numbers
     theory_id: 8788
   - title: IDE
-    theory_id: 3805
+    theory_id: 10996
   - title: Boolean and logical operations
     theory_id: 3516
   - title: Relational operators
@@ -85,50 +86,66 @@ topics:
   - title: EduTools
     theory_id: 5839
   3:
+  - title: Units of information
+    theory_id: 6865
+  - title: Sizes and ranges
+    theory_id: 3532
+  - title: Type casting
+    theory_id: 3510
+  - title: Calling a method
+    theory_id: 10973
   - title: Primitive and reference types
     theory_id: 5035
   - title: Array
     theory_id: 3511
-  - title: String
-    theory_id: 3523
   - title: Iterating over arrays
     theory_id: 3602
+  - title: String
+    theory_id: 3523
   4:
+  - title: Write, compile, and run
+    theory_id: 3739
+  - title: Computer programming
+    theory_id: 8739
   - title: Introduction to OOP
     theory_id: 3614
   - title: Floating-point types
     theory_id: 3517
+  - title: Declaring a method
+    theory_id: 10982
+  - title: The main method
+    theory_id: 3489
+  - title: Functional decomposition
+    theory_id: 10570
   - title: Processing strings
     theory_id: 3551
-  - title: Write, compile, and run
-    theory_id: 3739
+  - title: StringBuilder
+    theory_id: 3812
+  - title: Interface
+    theory_id: 3615
+  - title: Comparable
+    theory_id: 14456
   - title: Defining classes
     theory_id: 3618
   - title: Objects
     theory_id: 4727
-  - title: StringBuilder
-    theory_id: 3812
   5:
+  - title: Arrays as parameters
+    theory_id: 3594
+  - title: Errors in programs
+    theory_id: 3536
   - title: What is an exception
     theory_id: 3497
   - title: Hierarchy of exceptions
     theory_id: 3570
   - title: Exception handling
     theory_id: 3552
-  - title: Sizes and ranges
-    theory_id: 3532
-  - title: Type casting
-    theory_id: 3510
-  - title: Defining methods
-    theory_id: 3590
-  - title: Errors in programs
-    theory_id: 3536
-  - title: Package
-    theory_id: 3621
   - title: Constructor
     theory_id: 3535
   - title: Instance methods
     theory_id: 3495
+  - title: Package
+    theory_id: 3621
   - title: Access modifiers
     theory_id: 3589
   - title: Getters and setters
